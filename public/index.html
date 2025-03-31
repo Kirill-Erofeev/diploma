@@ -1,0 +1,397 @@
+<!-- <!DOCTYPE html>
+<html>
+  <head>
+    <title>Жаба</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #4caf50, #2196f3);
+        color: white;
+        text-align: center;
+        padding: 20px;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      h1 {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .button {
+        background: linear-gradient(135deg, #ff9800, #ff5722);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        margin: 10px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: 0.3s;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .button:disabled {
+        background: gray;
+        cursor: not-allowed;
+      }
+      .button:hover:not(:disabled) {
+        transform: scale(1.1);
+      }
+      #audio-playback {
+        margin-top: 20px;
+      }
+    </style>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <h1>Запись голосового сообщения</h1>
+    <button id="start-recording">Начать запись</button>
+    <button id="stop-recording" disabled>Остановить запись</button>
+    <audio id="audio-playback" controls></audio>
+    <button onclick="send()">Отправить</button>
+    <script>
+      let mediaRecorder;
+      let audioChunks = [];
+
+      document.getElementById("start-recording").onclick = async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (event) => {
+          audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          document.getElementById("audio-playback").src = audioUrl;
+          document.getElementById("send-message").disabled = false;
+
+          // Сбросить массив для следующей записи
+          audioChunks = [];
+        };
+
+        mediaRecorder.start();
+        document.getElementById("start-recording").disabled = true;
+        document.getElementById("stop-recording").disabled = false;
+      };
+
+      document.getElementById("stop-recording").onclick = () => {
+        mediaRecorder.stop();
+        document.getElementById("start-recording").disabled = false;
+        document.getElementById("stop-recording").disabled = true;
+      };
+      async function send() {
+        const username = document.getElementById("username").value;
+        const userage = document.getElementById("userage").value;
+        const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "audio.wav");
+        try {
+          const response = await fetch("/hello", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log("Успех:", data);
+          } else {
+            console.error("Ошибка:", await response.text());
+          }
+        } catch (error) {
+          console.error("Ошибка отправки запроса:", error);
+        }
+      }
+    </script>
+  </body>
+</html> -->
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Запись голосового сообщения</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #4caf50, #2196f3);
+        color: white;
+        text-align: center;
+        padding: 20px;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      h1 {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .button {
+        background: linear-gradient(135deg, #ff9800, #ff5722);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        margin: 10px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: 0.3s;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .button:disabled {
+        background: gray;
+        cursor: not-allowed;
+      }
+      .button:hover:not(:disabled) {
+        transform: scale(1.1);
+      }
+      #audio-playback {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Голосовой рекордер</h1>
+    <button id="start-recording" class="button">Начать запись</button>
+    <button id="stop-recording" class="button" disabled>
+      Остановить запись
+    </button>
+    <audio id="audio-playback" controls></audio>
+    <button id="send-button" class="button" onclick="send()" disabled>
+      Отправить
+    </button>
+    <button id="get-history" class="button" onclick="getHistory()">
+      История запросов
+    </button>
+    <div id="content"></div>
+
+
+    <script>
+      let mediaRecorder;
+      let audioChunks = [];
+
+      document.getElementById("start-recording").onclick = async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+
+        mediaRecorder.ondataavailable = (event) => {
+          audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          document.getElementById("audio-playback").src = audioUrl;
+          document.getElementById("send-button").disabled = false;
+        };
+
+        mediaRecorder.start();
+        document.getElementById("start-recording").disabled = true;
+        document.getElementById("stop-recording").disabled = false;
+      };
+
+      document.getElementById("stop-recording").onclick = () => {
+        mediaRecorder.stop();
+        document.getElementById("start-recording").disabled = false;
+        document.getElementById("stop-recording").disabled = true;
+      };
+
+      async function send() {
+        const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "audio.wav");
+
+        try {
+          const response = await fetch("/hello", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            console.log("Аудио успешно отправлено!");
+          } else {
+            console.error("Ошибка отправки аудио");
+          }
+        } catch (error) {
+          console.error("Ошибка запроса:", error);
+        }
+      }
+
+      async function getHistory() {
+        try {
+          window.location.href = "/api";
+        } catch (error) {
+          console.error("Ошибка запроса:", error);
+        }
+      }
+    </script>
+  </body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Главная страница</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #4caf50, #2196f3);
+        color: white;
+        text-align: center;
+        padding: 20px;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      h1 {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .recorder {
+        background: linear-gradient(135deg, #ff9800, #ff5722);
+        border: none;
+        color: white;
+        padding: 20px;
+        margin: 10px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        transition: 0.3s;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .recorder.recording {
+        background: red;
+        animation: blink 1s infinite;
+      }
+      @keyframes blink {
+        50% {
+          background: darkred;
+        }
+      }
+      .button {
+        background: linear-gradient(135deg, #ff9800, #ff5722);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        margin: 10px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: 0.3s;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .button:disabled {
+        background: gray;
+        cursor: not-allowed;
+      }
+      .button:hover:not(:disabled) {
+        transform: scale(1.1);
+      }
+      #audio-playback {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Голосовой диктофон</h1>
+    <button id="recorder-button" class="recorder">🎤</button>
+    <audio id="audio-playback" controls></audio>
+    <button id="send-button" class="button" onclick="sendAudio()" disabled>
+      Отправить
+    </button>
+    <button id="get-history" class="button" onclick="getHistory()">
+      История запросов
+    </button>
+
+    <script>
+      let mediaRecorder;
+      let audioChunks = [];
+      let recordedAudioBlob = null;
+      let isRecording = false;
+
+      const recorderButton = document.getElementById("recorder-button");
+      const sendButton = document.getElementById("send-button");
+
+      recorderButton.onclick = async () => {
+        if (!isRecording) {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+          recorderButton.classList.add("recording");
+
+          mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+          };
+
+          mediaRecorder.onstop = () => {
+            recordedAudioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            const audioUrl = URL.createObjectURL(recordedAudioBlob);
+            document.getElementById("audio-playback").src = audioUrl;
+            sendButton.disabled = false;
+            stream.getTracks().forEach(track => track.stop());
+          };
+
+          mediaRecorder.start();
+          isRecording = true;
+        } else {
+          mediaRecorder.stop();
+          recorderButton.classList.remove("recording");
+          isRecording = false;
+        }
+      };
+
+      async function sendAudio() {
+        if (!recordedAudioBlob) {
+          console.error("Нет записи для отправки");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("audio", recordedAudioBlob, "audio.wav");
+        try {
+          const response = await fetch("/hello", {
+            method: "POST",
+            body: formData,
+          });
+          if (response.ok) {
+            console.log("Аудио успешно отправлено!");
+          } else {
+            console.error("Ошибка отправки аудио");
+          }
+        } catch (error) {
+          console.error(`Ошибка ${error}`);
+        }
+      }
+
+      async function getHistory() {
+        try {
+          window.location.href = "/api";
+        } catch (error) {
+          console.error(`Ошибка ${error}`);
+        }
+      }
+    </script>
+  </body>
+</html>

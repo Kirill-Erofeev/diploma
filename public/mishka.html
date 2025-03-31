@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Голосовой слушатель</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    #list {
+      margin-top: 20px;
+      padding-left: 20px;
+    }
+    li {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Голосовой слушатель</h1>
+  <p>Сайт постоянно слушает вас. Произнесите слово "Мишка" для добавления его в список.</p>
+  <ul id="list"></ul>
+
+  <script>
+    // Проверка поддержки SpeechRecognition API
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Ваш браузер не поддерживает Speech Recognition API.');
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true; // Постоянное прослушивание
+      recognition.interimResults = false; // Обработка только окончательных результатов
+      recognition.lang = 'ru-RU'; // Язык распознавания - русский
+
+      // Обработчик результатов распознавания
+      recognition.onresult = (event) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            const transcript = event.results[i][0].transcript.trim().toLowerCase();
+            console.log("Распознано: " + transcript);
+            // Если в распознанном тексте содержится слово "мишка"
+            if (transcript.includes("мишка")) {
+              const li = document.createElement("li");
+              li.textContent = "Мишка";
+              document.getElementById("list").appendChild(li);
+            }
+          }
+        }
+      };
+
+      // Обработка ошибок
+      recognition.onerror = (event) => {
+        console.error("Ошибка распознавания: ", event.error);
+      };
+
+      // Перезапуск распознавания, если оно остановилось
+      recognition.onend = () => {
+        recognition.start();
+      };
+
+      // Запуск распознавания
+      recognition.start();
+    }
+  </script>
+</body>
+</html>
