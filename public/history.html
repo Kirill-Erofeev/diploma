@@ -75,7 +75,8 @@
         color: white;
         z-index: 10;
       }
-      th, td {
+      th,
+      td {
         padding: 0.5em;
         border-bottom: 1px solid rgba(255, 255, 255, 0.2);
       }
@@ -150,11 +151,21 @@
       Главное меню
     </button>
     <script>
+      function getAuthorization() {
+        const accessToken = sessionStorage.getItem("Access-Token");
+        const tokenType = sessionStorage.getItem("Token-Type");
+        const authorization = `${tokenType} ${accessToken}`;
+        return authorization;
+      }
       async function getAllHistory() {
         try {
+          const authorization = getAuthorization();
           const response = await fetch("/api/history", {
             method: "GET",
-            headers: { Accept: "application/json" },
+            headers: {
+              Accept: "application/json",
+              Authorization: authorization
+            },
           });
           if (response.ok) {
             const allHistory = await response.json();
@@ -163,19 +174,23 @@
           } else {
             console.error(`Ошибка ${response.status}: ${response.statusText}`);
           }
-        }
-        catch (error) {
+        } catch (error) {
           console.error(`Ошибка ${error}`);
         }
       }
 
       async function getSelectedHistory() {
         try {
+          const authorization = getAuthorization();
           document.querySelector("tbody").innerHTML = "";
-          const information = document.getElementById("information-input").value;
+          const information =
+            document.getElementById("information-input").value;
           const response = await fetch(`/api/history/${information}`, {
             method: "GET",
-            headers: { Accept: "application/json" },
+            headers: {
+              Accept: "application/json",
+              Authorization: authorization
+            },
           });
           if (response.ok) {
             const selectedHistory = await response.json();
@@ -196,7 +211,7 @@
           console.error(`Ошибка ${error}`);
         }
       }
-      
+
       function row(record) {
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${record.id}</td><td>${record.date_time}</td><td>${record.request}</td><td>${record.response}</td>`;

@@ -325,6 +325,9 @@
     <button id="get-history" class="button" onclick="getHistory()">
       История запросов
     </button>
+    <button id="rty" class="button" onclick="hi()">
+      Вывод
+    </button>
 
     <script>
       let mediaRecorder;
@@ -373,6 +376,7 @@
         try {
           const response = await fetch("/hello", {
             method: "POST",
+            headers: {},
             body: formData,
           });
           if (response.ok) {
@@ -392,6 +396,12 @@
           console.error(`Ошибка ${error}`);
         }
       }
+      function hi() {
+        console.log(123456);
+        console.log(sessionStorage.getItem("access-token"));
+        alert(sessionStorage.getItem("access-token"));
+      }
+      // hi();
     </script>
   </body>
 </html>
