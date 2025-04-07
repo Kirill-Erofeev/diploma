@@ -1,3 +1,4 @@
+import re
 import torch
 import transformers
 import datetime
@@ -26,8 +27,8 @@ def answer_the_question_1():
     response = generate_response("Какого цвета жабы?")
     finish = datetime.datetime.now()
     print(f"Модель: {model_name}")
-    print(f"Текст: {response}")
     print(f"Время:{str(finish - start)}")
+    print(f"Текст: {response}")
     
 
 def answer_the_question_2():
@@ -48,8 +49,8 @@ def answer_the_question_2():
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
     finish = datetime.datetime.now()
     print(f"Модель: {model_name}")
-    print(f"Текст: {response}")
     print(f"Время:{str(finish - start)}")
+    print(f"Текст: {response}")
 
 
 def answer_the_question_3():
@@ -70,36 +71,28 @@ def answer_the_question_3():
     response = outputs["generated_text"]
     finish = datetime.datetime.now()
     print(f"Модель: {model_name}")
-    print(f"Текст: {response}")
     print(f"Время:{str(finish - start)}")
+    print(f"Текст: {response}")
     
     
-def answer_the_question_4():
+def answer_the_question_4(prompt: str) -> str:
     start = datetime.datetime.now()
+    prompt += " in 2-3 sentences"
     tokenizer = AutoTokenizer.from_pretrained("SmallDoge/Doge-320M-Instruct")
     model = AutoModelForCausalLM.from_pretrained("SmallDoge/Doge-320M-Instruct", trust_remote_code=True)
-    # generation_config = GenerationConfig(
-    #     max_new_tokens=100, 
-    #     use_cache=True, 
-    #     do_sample=True, 
-    #     temperature=0.8, 
-    #     top_p=0.9,
-    #     repetition_penalty=1.0
-    # )
     generation_config = GenerationConfig(
-        max_new_tokens=300,  # Увеличиваем лимит генерации
+        max_new_tokens=300,
         use_cache=True, 
-        do_sample=False,     # Отключаем случайность для более уверенного ответа
-        temperature=0.8,     # (Опционально) Чуть ниже температура
+        do_sample=False,
+        temperature=0.8,
         top_p=0.9,
-        repetition_penalty=1.0  # Немного выше penalty для избежания повторов
+        repetition_penalty=1.0
     )
-
     steamer = TextStreamer(
         tokenizer=tokenizer, 
         skip_prompt=True
     )
-    prompt = "What is Metallica?"
+    # prompt = "What is Metallica?"
     conversation = [
         {"role": "user", "content": prompt}
     ]
@@ -114,8 +107,15 @@ def answer_the_question_4():
         generation_config=generation_config, 
         streamer=steamer
     )
+    full_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    match = re.search(r"assistant\s*(.*?)$", full_text, re.DOTALL | re.IGNORECASE)
+    if match:
+        answer_only = match.group(1).strip()
+    else:
+        answer_only = full_text.strip()
     finish = datetime.datetime.now()
     print(f"Время:{str(finish - start)}")
+    return answer_only
     
     
 def answer_the_question_5():
@@ -138,8 +138,8 @@ def answer_the_question_6():
     response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
     finish = datetime.datetime.now()
     print(f"Модель: {model_name}")
-    print(f"Текст: {response}")
     print(f"Время:{str(finish - start)}")
+    print(f"Текст: {response}")
 
 
 def answer_the_question_7():
@@ -168,6 +168,6 @@ def answer_the_question_7():
     print(f"Время:{str(finish - start)}")
 
 
-answer_the_question_1()
+# answer_the_question_1()
 # answer_the_question_3()
-# answer_the_question_4()
+answer_the_question_4("What is Metallica?")

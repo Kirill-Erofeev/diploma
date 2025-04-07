@@ -8,6 +8,8 @@ from datetime import datetime
 import models, schemas, auth
 from fastapi.security import OAuth2PasswordBearer
 from database import engine, get_db
+from text_generation import answer_the_question_4
+from translation import translate_text
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -93,13 +95,15 @@ async def post_audio_data(
     audio_file_path = "audio.wav"
     with open(audio_file_path, "wb") as buffer:
         shutil.copyfileobj(audio.file, buffer)
-    transcribed_text = audio_to_text(audio_file_path)
-    # print("text", transcribed_text)
+    ru_prompt = audio_to_text(audio_file_path)
+    en_prompt = translate_text(target_language="en", text=ru_prompt)
+    generated_en_text = answer_the_question_4(prompt=en_prompt)
+    generated_ru_text = translate_text(target_language="ru", text=generated_en_text)
     current_datetime = datetime.now().replace(microsecond=0)
     new_record = models.History(
         date_time=current_datetime,
-        request=transcribed_text,
-        response="Hello",
+        request=ru_prompt,
+        response=generated_ru_text,
         username=current_user.username
     )
     db.add(new_record)
