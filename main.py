@@ -1,7 +1,7 @@
 import shutil
 from datetime import datetime
 from sqlalchemy.orm import Session
-from text_to_speech import audio_to_text
+from speech_to_text import audio_to_text
 from fastapi import FastAPI, File, UploadFile, Depends, status, Form, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from datetime import datetime
@@ -13,7 +13,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/")
 
 async def get_current_user(
         token: str = Depends(oauth2_scheme),
@@ -34,12 +34,16 @@ async def get_current_user(
         )
     return user
 
-@app.get("/login")
-async def root():
-    return FileResponse("public/login.html")
+@app.get("/")
+async def get_authorization_page():
+    return FileResponse("public/authorization.html")
 
-@app.post("/login")
-async def postdata(username = Form(), password = Form(), db: Session = Depends(get_db)):
+@app.post("/")
+async def post_authorization_data(
+        username = Form(),
+        password = Form(),
+        db: Session = Depends(get_db)
+):
     user = db.query(models.User).filter(models.User.username == username).first()
     if not user or not auth.verify_password(password, user.password):
         raise HTTPException(
@@ -55,7 +59,7 @@ async def postdata(username = Form(), password = Form(), db: Session = Depends(g
     )
 
 @app.post("/register")
-async def register_user(
+async def post_register_data(
         username = Form(),
         password = Form(),
         db: Session = Depends(get_db)
@@ -76,16 +80,12 @@ async def register_user(
         content="Пользователь успешно зарегистрирован"
     )
 
-@app.get("/")
-async def root():
+@app.get("/home")
+async def get_home_page():
     return FileResponse("public/index.html")
 
-@app.get("/api")
-async def main2():
-    return FileResponse("public/history.html")
-
-@app.post("/hello")
-async def hello(
+@app.post("/record-audio")
+async def post_audio_data(
         current_user: models.User = Depends(get_current_user),
         audio: UploadFile = File(...),
         db: Session = Depends(get_db)
@@ -107,7 +107,11 @@ async def hello(
     db.refresh(new_record)
     return {"message": "Файл успешно загружен", "filename": audio.filename}
 
-@app.get("/api/history")
+@app.get("/history")
+async def get_history_page():
+    return FileResponse("public/history.html")
+
+@app.get("/get-history")
 async def get_history(
         current_user: models.User = Depends(get_current_user),
         db: Session = Depends(get_db)
@@ -122,8 +126,8 @@ async def get_history(
         )
     return history
 
-@app.get("/api/history/{information}")
-async def get_person(
+@app.get("/get-history/{information}")
+async def get_selected_history(
         information: str,
         current_user: models.User = Depends(get_current_user),
         db: Session = Depends(get_db),

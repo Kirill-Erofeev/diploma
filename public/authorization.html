@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Регистрация</title>
+    <title>Авторизация</title>
     <style>
       * {
         box-sizing: border-box;
@@ -278,7 +278,7 @@
 
             const clickedButton = event.submitter.id;
             let endpoint =
-              clickedButton === "register-button" ? "/register" : "/login";
+              clickedButton === "register-button" ? "/register" : "/";
 
             const formData = new FormData(this);
             console.log(endpoint);
@@ -296,7 +296,7 @@
                 const tokenType = response.headers.get("Token-Type");
                 sessionStorage.setItem("Access-Token", accessToken);
                 sessionStorage.setItem("Token-Type", tokenType);
-                window.location.href = "/";
+                window.location.href = "/home";
               }
             } else {
               message.textContent = data["detail"];

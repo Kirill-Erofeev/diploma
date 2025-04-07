@@ -1,0 +1,173 @@
+import torch
+import transformers
+import datetime
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, GenerationConfig, TextStreamer
+from auto_gptq import AutoGPTQForCausalLM
+
+
+def answer_the_question_1():
+    start = datetime.datetime.now()
+    model_name = "TheBloke/Mistral-7B-Instruct-v0.1-GPTQ"
+    # model_name = "TheBloke/Mistral-7B-Instruct-v0.2-GPTQ"
+    # model_name = "deepseek-ai/DeepSeek-V3-0324"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    model = AutoGPTQForCausalLM.from_quantized(
+        model_name, 
+        # device="cuda:0", 
+        use_triton=False, 
+        quantize_config=None
+    )
+    model.to(device)
+    def generate_response(prompt):
+        inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+        outputs = model.generate(**inputs, max_new_tokens=200)
+        return tokenizer.decode(outputs[0], skip_special_tokens=True)
+    response = generate_response("Какого цвета жабы?")
+    finish = datetime.datetime.now()
+    print(f"Модель: {model_name}")
+    print(f"Текст: {response}")
+    print(f"Время:{str(finish - start)}")
+    
+
+def answer_the_question_2():
+    start = datetime.datetime.now()
+    model_name = "TheBloke/Mistral-7B-Instruct-v0.1-GPTQ"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        # device_map="auto",         # Автоматически использует GPU
+        torch_dtype=torch.float16, # Использует float16 для ускорения
+        trust_remote_code=True
+    )
+    model.to(device)
+    question = "Как установить питон?"
+    inputs = tokenizer(question, return_tensors="pt").to("cuda")
+    outputs = model.generate(**inputs, max_new_tokens=100)
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    finish = datetime.datetime.now()
+    print(f"Модель: {model_name}")
+    print(f"Текст: {response}")
+    print(f"Время:{str(finish - start)}")
+
+
+def answer_the_question_3():
+    start = datetime.datetime.now()
+    model_name = "sambanovasystems/SambaLingo-Russian-Chat"
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype="auto")
+    pipe = transformers.pipeline("text-generation", model=model_name, device_map="auto", use_fast=False)
+    messages = [
+        {
+            "role": "user",
+            "content": "Кратко, чем питаются жабы?"
+            # "content": "Как установить питон?</s>"""
+        },
+    ]
+    prompt = pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    outputs = pipe(prompt, max_new_tokens=20, do_sample=False)[0]
+    response = outputs["generated_text"]
+    finish = datetime.datetime.now()
+    print(f"Модель: {model_name}")
+    print(f"Текст: {response}")
+    print(f"Время:{str(finish - start)}")
+    
+    
+def answer_the_question_4():
+    start = datetime.datetime.now()
+    tokenizer = AutoTokenizer.from_pretrained("SmallDoge/Doge-320M-Instruct")
+    model = AutoModelForCausalLM.from_pretrained("SmallDoge/Doge-320M-Instruct", trust_remote_code=True)
+    # generation_config = GenerationConfig(
+    #     max_new_tokens=100, 
+    #     use_cache=True, 
+    #     do_sample=True, 
+    #     temperature=0.8, 
+    #     top_p=0.9,
+    #     repetition_penalty=1.0
+    # )
+    generation_config = GenerationConfig(
+        max_new_tokens=300,  # Увеличиваем лимит генерации
+        use_cache=True, 
+        do_sample=False,     # Отключаем случайность для более уверенного ответа
+        temperature=0.8,     # (Опционально) Чуть ниже температура
+        top_p=0.9,
+        repetition_penalty=1.0  # Немного выше penalty для избежания повторов
+    )
+
+    steamer = TextStreamer(
+        tokenizer=tokenizer, 
+        skip_prompt=True
+    )
+    prompt = "What is Metallica?"
+    conversation = [
+        {"role": "user", "content": prompt}
+    ]
+    inputs = tokenizer.apply_chat_template(
+        conversation=conversation,
+        tokenize=True,
+        return_tensors="pt",
+    )
+    outputs = model.generate(
+        inputs, 
+        tokenizer=tokenizer,
+        generation_config=generation_config, 
+        streamer=steamer
+    )
+    finish = datetime.datetime.now()
+    print(f"Время:{str(finish - start)}")
+    
+    
+def answer_the_question_5():
+    start = datetime.datetime.now()
+    generator = transformers.pipeline('text-generation', model='gpt2')
+    transformers.set_seed(42)
+    print(generator("What is Metallica?", max_length=30, num_return_sequences=5)[0]["generated_text"])
+
+
+def answer_the_question_6():
+    start = datetime.datetime.now()
+    model_name = "gai-labs/strela"
+    tokenizer = AutoTokenizer.from_pretrained("gai-labs/strela")
+    model = AutoModelForCausalLM.from_pretrained("gai-labs/strela")
+
+    prompt = "ИИ - "
+
+    model_inputs = tokenizer([prompt], return_tensors="pt")
+    generated_ids = model.generate(**model_inputs, max_new_tokens=64) # Настройте максимальное количество токенов для генерации
+    response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+    finish = datetime.datetime.now()
+    print(f"Модель: {model_name}")
+    print(f"Текст: {response}")
+    print(f"Время:{str(finish - start)}")
+
+
+def answer_the_question_7():
+    start = datetime.datetime.now()
+    model_name = "q"
+    from llama_cpp import Llama
+
+    llm = Llama.from_pretrained(
+        repo_id="RefalMachine/RuadaptQwen2.5-14B-R1-distill-preview-v1-GGUF",
+        # filename="IQ4_XS.gguf",
+        filename="Q2_K.gguf",
+    )
+
+    print(llm.create_chat_completion(
+        messages = [
+                {
+                    "role": "user",
+                    "content": "Какая столица Франции??"
+                }
+            ]
+        )
+    )
+    finish = datetime.datetime.now()
+    print(f"Модель: {model_name}")
+    # print(f"Текст: {response}")
+    print(f"Время:{str(finish - start)}")
+
+
+answer_the_question_1()
+# answer_the_question_3()
+# answer_the_question_4()

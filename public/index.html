@@ -204,7 +204,7 @@
         formData.append("audio", recordedAudioBlob, "audio.wav");
         try {
           const authorization = getAuthorization();
-          const response = await fetch("/hello", {
+          const response = await fetch("/record-audio", {
             method: "POST",
             headers: { Authorization: authorization },
             body: formData,
@@ -221,7 +221,7 @@
 
       async function getHistory() {
         try {
-          window.location.href = "/api";
+          window.location.href = "/history";
         } catch (error) {
           console.error(`Ошибка ${error}`);
         }

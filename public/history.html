@@ -194,7 +194,7 @@
       async function getAllHistory() {
         try {
           const authorization = getAuthorization();
-          const response = await fetch("/api/history", {
+          const response = await fetch("/get-history", {
             method: "GET",
             headers: {
               Accept: "application/json",
@@ -222,7 +222,7 @@
           document.querySelector("tbody").innerHTML = "";
           const information =
             document.getElementById("information-input").value;
-          const response = await fetch(`/api/history/${information}`, {
+          const response = await fetch(`/get-history/${information}`, {
             method: "GET",
             headers: {
               Accept: "application/json",
@@ -246,7 +246,7 @@
 
       async function getMainMenu() {
         try {
-          window.location.href = "/";
+          window.location.href = "/home";
         } catch (error) {
           console.error(`Ошибка ${error}`);
         }
