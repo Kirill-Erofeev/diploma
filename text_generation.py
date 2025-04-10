@@ -4,6 +4,7 @@ import transformers
 import datetime
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, GenerationConfig, TextStreamer
 from auto_gptq import AutoGPTQForCausalLM
+from translation import translate_text
 
 
 def answer_the_question_1():
@@ -75,11 +76,12 @@ def answer_the_question_3():
     print(f"Текст: {response}")
     
     
-def answer_the_question_4(prompt: str) -> str:
+def answer_the_question(prompt: str) -> str:
     start = datetime.datetime.now()
-    prompt += " in 2-3 sentences"
-    tokenizer = AutoTokenizer.from_pretrained("SmallDoge/Doge-320M-Instruct")
-    model = AutoModelForCausalLM.from_pretrained("SmallDoge/Doge-320M-Instruct", trust_remote_code=True)
+    model_name = "SmallDoge/Doge-320M-Instruct"
+    # prompt += " in 2-3 sentences"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True)
     generation_config = GenerationConfig(
         max_new_tokens=300,
         use_cache=True, 
@@ -92,7 +94,6 @@ def answer_the_question_4(prompt: str) -> str:
         tokenizer=tokenizer, 
         skip_prompt=True
     )
-    # prompt = "What is Metallica?"
     conversation = [
         {"role": "user", "content": prompt}
     ]
@@ -114,7 +115,7 @@ def answer_the_question_4(prompt: str) -> str:
     else:
         answer_only = full_text.strip()
     finish = datetime.datetime.now()
-    print(f"Время:{str(finish - start)}")
+    print(f"Время: {str(finish - start)}")
     return answer_only
     
     
@@ -168,6 +169,26 @@ def answer_the_question_7():
     print(f"Время:{str(finish - start)}")
 
 
-# answer_the_question_1()
-# answer_the_question_3()
-answer_the_question_4("What is Metallica?")
+def answer_the_question_8():
+    # model = AutoModelForCausalLM.from_pretrained(
+    #     "TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
+    #     model_file="mistral-7b-instruct-v0.1.Q4_0.gguf"
+    # )
+    model = AutoModelForCausalLM.from_pretrained(
+        "TheBloke/Mistral-7B-Instruct-v0.2-GGUF",
+        model_file="mistral-7b-instruct-v0.2.Q4_0.gguf"
+    )
+    response = model("Расскажи про жаб", stream=True)
+    print("".join(response))
+
+
+if __name__ == "__main__":
+    # answer_the_question_1()
+    # answer_the_question_3()
+    # answer_the_question_4("What is Metallica?")
+    ru_prompt = "Расскажи про Ленина."
+    en_prompt = translate_text(target_language="en", text=ru_prompt)
+    generated_en_text = answer_the_question(prompt=en_prompt)
+    generated_ru_text = translate_text(target_language="ru", text=generated_en_text)
+    # print(generated_en_text)
+    print(generated_ru_text)

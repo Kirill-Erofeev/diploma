@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Авторизация</title>
+    <title>Вход и регистрация</title>
     <style>
       * {
         box-sizing: border-box;
@@ -128,11 +128,11 @@
         color: white;
         position: relative;
         padding-right: 35px;
-        background: linear-gradient(45deg, #36c320, #16acd6);
+        background: linear-gradient(135deg, #16acd6, #36c320);
       }
 
       .button.login {
-        background: linear-gradient(135deg, #16acd6, #36c320);
+        background: linear-gradient(45deg, #36c320, #16acd6);
       }
 
       .button::before {
@@ -182,7 +182,7 @@
       <div class="left"></div>
 
       <div class="right">
-        <h2>Регистрация и вход</h2>
+        <h2>Вход и регистрация</h2>
         <form id="registerForm">
           <div class="input-group">
             <svg
@@ -232,9 +232,8 @@
           </div>
           <p id="message" class="message"></p>
           <div class="button-container">
-            <button type="submit" id="register-button" class="button register">
-              <!-- <button type="submit" class="registration-button"> -->
-              Зарегистрироваться
+            <button type="submit" id="login-button" class="button login">
+              Войти
               <svg
                 class="arrow-icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -246,9 +245,8 @@
                 />
               </svg>
             </button>
-            <button type="submit" id="login-button" class="button login">
-              <!-- <button type="submit" class="login-button"> -->
-              Войти
+            <button type="submit" id="register-button" class="button register">
+              Зарегистрироваться
               <svg
                 class="arrow-icon"
                 xmlns="http://www.w3.org/2000/svg"
