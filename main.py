@@ -1,13 +1,13 @@
 import shutil
 from datetime import datetime
 from sqlalchemy.orm import Session
-from speech_to_text import audio_to_text
 from fastapi import FastAPI, File, UploadFile, Depends, status, Form, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from datetime import datetime
-import models, schemas, auth
 from fastapi.security import OAuth2PasswordBearer
+import models, schemas, auth
 from database import engine, get_db
+from speech_to_text import audio_to_text
 from text_generation import answer_the_question
 from translation import translate_text
 
@@ -40,7 +40,7 @@ async def get_current_user(
 async def get_authorization_page():
     return FileResponse("public/authorization.html")
 
-@app.post("/")
+@app.post("/", response_model=schemas.Token)
 async def post_authorization_data(
         username = Form(),
         password = Form(),
@@ -69,7 +69,7 @@ async def post_register_data(
     db_user = db.query(models.User).filter(models.User.username == username).first()
     if db_user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_409_CONFLICT,
             detail="Пользователь с данным именем уже существует"
         )
     hashed_password = auth.get_password_hash(password)
@@ -78,7 +78,7 @@ async def post_register_data(
     db.commit()
     db.refresh(new_user)
     return JSONResponse(
-        status_code=status.HTTP_200_OK,
+        status_code=status.HTTP_201_CREATED,
         content="Пользователь успешно зарегистрирован"
     )
 
