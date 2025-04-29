@@ -1,15 +1,16 @@
 import shutil
+import uvicorn
 from datetime import datetime
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, File, UploadFile, Depends, status, Form, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
-from datetime import datetime
 from fastapi.security import OAuth2PasswordBearer
-import models, schemas, auth
+from datetime import datetime
+import models, schemas, auth, translation, speech_to_text, text_generation
 from database import engine, get_db
-from speech_to_text import audio_to_text
-from text_generation import answer_the_question
-from translation import translate_text
+# from speech_to_text import audio_to_text
+# from text_generation import answer_the_question
+# from translation import translate_text
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -95,10 +96,10 @@ async def post_audio_data(
     audio_file_path = "audio.wav"
     with open(audio_file_path, "wb") as buffer:
         shutil.copyfileobj(audio.file, buffer)
-    ru_prompt = audio_to_text(audio_file_path)
-    en_prompt = translate_text(target_language="en", text=ru_prompt)
-    generated_en_text = answer_the_question(prompt=en_prompt)
-    generated_ru_text = translate_text(target_language="ru", text=generated_en_text)
+    ru_prompt = speech_to_text.audio_to_text(audio_file_path)
+    en_prompt = translation.translate_text(target_language="en", text=ru_prompt)
+    generated_en_text = text_generation.answer_the_question(prompt=en_prompt)
+    generated_ru_text = translation.translate_text(target_language="ru", text=generated_en_text)
     current_datetime = datetime.now().replace(microsecond=0)
     new_record = models.History(
         date_time=current_datetime,
@@ -145,10 +146,18 @@ async def get_selected_history(
         models.History.request.contains(information) |
         models.History.response.contains(information))
     ).all()
-
     if not selected_history:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Информация не найдена"
         )
     return selected_history
+
+if __name__ == "__main__":
+    uvicorn.run(
+        app,
+        host="127.0.0.1",
+        port=8000,
+        ssl_keyfile="key.pem",
+        ssl_certfile="cert.pem"
+    )

@@ -63,7 +63,7 @@ def answer_the_question_3():
     messages = [
         {
             "role": "user",
-            "content": "Кратко, чем питаются жабы?"
+            "content": "Кто такие жабы?"
             # "content": "Как установить питон?</s>"""
         },
     ]
@@ -184,11 +184,28 @@ def answer_the_question_8():
 
 if __name__ == "__main__":
     # answer_the_question_1()
-    # answer_the_question_3()
+    answer_the_question_3()
     # answer_the_question_4("What is Metallica?")
-    ru_prompt = "Расскажи про Ленина."
-    en_prompt = translate_text(target_language="en", text=ru_prompt)
-    generated_en_text = answer_the_question(prompt=en_prompt)
-    generated_ru_text = translate_text(target_language="ru", text=generated_en_text)
+    # ru_prompt = "Расскажи про Ленина."
+    # en_prompt = translate_text(target_language="en", text=ru_prompt)
+    # generated_en_text = answer_the_question(prompt=en_prompt)
+    # generated_ru_text = translate_text(target_language="ru", text=generated_en_text)
     # print(generated_en_text)
-    print(generated_ru_text)
+    # print(generated_ru_text)
+    # from transformers import AutoTokenizer
+
+    # # Название модели
+    # model_name = "SmallDoge/Doge-320M-Instruct"
+
+    # # Загружаем токенизатор
+    # tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    # # Текст на английском
+    # text = "Toads are amphibians belonging to the order Anura, which also includes frogs and newts. They are characterized by having moist, scaly skin, short legs, and a long tail. Toads are found in various parts of the world, including North America, Europe, Asia, and Australia. They are herbivores and feed on a variety of plants, including leaves, stems, and flowers. Toads are also carnivores and feed on small animals, such as insects and worms. They are social animals and live in groups called colonies. Toads are known for their unique mating behaviors, including the use of pheromones to attract mates. They are also known for their ability to regenerate lost limbs and regenerate their tails. Toads are important animals in their ecosystems, as they help to control pest populations and provide food for other animals."
+
+    # # Токенизация
+    # tokens = tokenizer.tokenize(text, add_special_tokens=False)
+
+    # # Печать количества токенов
+    # print("Количество токенов:", len(tokens))
+
