@@ -6,7 +6,20 @@ from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from datasets import load_dataset
 from faster_whisper import WhisperModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from dotenv import load_dotenv
+import os
 
+
+def audio_to_text(file_path: str, LM_FOLDER: str) -> str:
+    # model_name = "deepdml/faster-whisper-large-v3-turbo-ct2"
+    model_name = "Whisper"
+    model_path = os.path.join(LM_FOLDER, model_name)
+    model = WhisperModel(model_path, compute_type="int8", device="cpu")
+    segments, info = model.transcribe(file_path)
+    transcribed_text = ""
+    for segment in segments:
+        transcribed_text += segment.text + " "
+    return transcribed_text
 
 def audio_to_text_3(file_path: str = "audio.wav") -> str:
     model = whisper.load_model("medium")
@@ -44,22 +57,6 @@ def audio_to_text_2(file_path: str, model_id: str) -> None:
     print(f"Текст: {transcribed_text}")
     print(f"Время:{str(finish - start)}")
     print(f"{'-' * 30}")
-
-
-def audio_to_text(file_path: str) -> str:
-    start = datetime.datetime.now()
-    model_name = "deepdml/faster-whisper-large-v3-turbo-ct2"
-    model = WhisperModel(model_name, compute_type="int8", device="cpu")
-    # model = WhisperModel(model_name)
-    segments, info = model.transcribe(file_path)
-    transcribed_text = ""
-    for segment in segments:
-        transcribed_text += segment.text + " "
-    finish = datetime.datetime.now()
-    # print(f"Модель: {model_id}")
-    # print(f"Текст: {transcribed_text}")
-    # print(f"Время:{str(finish - start)}")
-    return transcribed_text
     
     
 if __name__ == "__main__":

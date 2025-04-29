@@ -1,10 +1,10 @@
 import re
+import os
 import torch
 import transformers
 import datetime
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, GenerationConfig, TextStreamer
 from auto_gptq import AutoGPTQForCausalLM
-from translation import translate_text
 
 
 def answer_the_question_1():
@@ -76,15 +76,16 @@ def answer_the_question_3():
     print(f"Текст: {response}")
     
     
-def answer_the_question(prompt: str) -> str:
-    start = datetime.datetime.now()
-    model_name = "SmallDoge/Doge-320M-Instruct"
+def answer_the_question(prompt: str, LM_FOLDER: str) -> str:
+    # model_name = "SmallDoge/Doge-320M-Instruct"
     # prompt += " in 2-3 sentences"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True)
+    model_name = "SmallDoge"
+    model_path = os.path.join(LM_FOLDER, model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True)
     generation_config = GenerationConfig(
         max_new_tokens=300,
-        use_cache=True, 
+        use_cache=True,
         do_sample=False,
         temperature=0.8,
         top_p=0.9,
@@ -114,8 +115,6 @@ def answer_the_question(prompt: str) -> str:
         answer_only = match.group(1).strip()
     else:
         answer_only = full_text.strip()
-    finish = datetime.datetime.now()
-    print(f"Время: {str(finish - start)}")
     return answer_only
     
     
