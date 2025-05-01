@@ -5,19 +5,32 @@ import uvicorn
 from dotenv import load_dotenv
 from datetime import datetime
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, File, UploadFile, Depends, status, Form, HTTPException
+from fastapi import (
+    FastAPI,
+    File,
+    UploadFile,
+    Depends,
+    status,
+    Form,
+    HTTPException
+)
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import OAuth2PasswordBearer
-from datetime import datetime
 
-import speech_to_text, text_generation, text_to_speech, translation, auth, schemas
-import database.models as models
-import database.db as db
+from app import (
+    auth,
+    schemas,
+    speech_to_text,
+    text_generation,
+    text_to_speech,
+    translation,
+)
+from app.database import db, models
 
 load_dotenv()
-SSL_KEYFILE = os.getenv("SSL_KEY_PATH", "./certs/key.pem")
-SSL_CERTFILE = os.getenv("SSL_CERT_PATH", "./certs/cert.pem")
-LM_FOLDER = os.getenv("LM_FOLDER", "./app/lm_models")
+SSL_KEY_PATH = os.getenv("SSL_KEY_PATH")
+SSL_CERT_PATH = os.getenv("SSL_CERT_PATH")
+LM_FOLDER = os.getenv("LM_FOLDER")
 models.Base.metadata.create_all(bind=db.engine)
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/")
@@ -25,7 +38,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/")
 async def get_current_user(
         token: str = Depends(oauth2_scheme),
         db: Session = Depends(db.get_db)
-):
+) -> models.User | None:
     username = auth.verify_token(token)
     if username is None:
         raise HTTPException(
@@ -42,7 +55,7 @@ async def get_current_user(
     return user
 
 @app.get("/")
-async def get_authorization_page():
+async def get_authorization_page() -> FileResponse:
     return FileResponse("app/templates/authorization.html")
 
 @app.post("/", response_model=schemas.Token)
@@ -50,7 +63,7 @@ async def post_authorization_data(
         username = Form(),
         password = Form(),
         db: Session = Depends(db.get_db)
-):
+) -> JSONResponse:
     user = db.query(models.User).filter(models.User.username == username).first()
     if not user or not auth.verify_password(password, user.password):
         raise HTTPException(
@@ -70,7 +83,7 @@ async def post_register_data(
         username = Form(),
         password = Form(),
         db: Session = Depends(db.get_db)
-):
+) -> JSONResponse:
     db_user = db.query(models.User).filter(models.User.username == username).first()
     if db_user:
         raise HTTPException(
@@ -88,7 +101,7 @@ async def post_register_data(
     )
 
 @app.get("/home")
-async def get_home_page():
+async def get_home_page() -> FileResponse:
     return FileResponse("app/templates/index.html")
 
 @app.post("/record-audio")
@@ -96,7 +109,7 @@ async def post_audio_data(
         current_user: models.User = Depends(get_current_user),
         audio: UploadFile = File(...),
         db: Session = Depends(db.get_db)
-):
+) -> JSONResponse:
     audio_file_path = "./app/static/audio.wav"
     with open(audio_file_path, "wb") as buffer:
         shutil.copyfileobj(audio.file, buffer)
@@ -134,14 +147,14 @@ async def post_audio_data(
     )
 
 @app.get("/history")
-async def get_history_page():
+async def get_history_page() -> FileResponse:
     return FileResponse("app/templates/history.html")
 
 @app.get("/get-history")
 async def get_history(
         current_user: models.User = Depends(get_current_user),
         db: Session = Depends(db.get_db)
-):
+):#-> models.History:
     history = db.query(models.History).filter(
         models.History.username == current_user.username
     ).all()
@@ -157,7 +170,7 @@ async def get_selected_history(
         information: str,
         current_user: models.User = Depends(get_current_user),
         db: Session = Depends(db.get_db),
-):
+):# -> models.History:
     selected_history = db.query(models.History).filter(
         models.History.username.is_(current_user.username) &
         (models.History.id.is_(information) |
@@ -174,8 +187,9 @@ async def get_selected_history(
 if __name__ == "__main__":
     uvicorn.run(
         app,
-        host="127.0.0.1",
+        # host="127.0.0.1",
+        host="0.0.0.0",
         port=8000,
-        ssl_keyfile=SSL_KEYFILE,
-        ssl_certfile=SSL_CERTFILE
+        ssl_keyfile=SSL_KEY_PATH,
+        ssl_certfile=SSL_CERT_PATH
     )

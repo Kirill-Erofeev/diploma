@@ -1,2 +1,7 @@
 ffmpeg.exe
-__pycache__
+__pycache__/
+lm_models/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
