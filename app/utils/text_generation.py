@@ -3,9 +3,10 @@ import os
 import torch
 import transformers
 import datetime
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, GenerationConfig, TextStreamer
+from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig, TextStreamer
 from auto_gptq import AutoGPTQForCausalLM
 
+from app.core.config import settings
 
 def answer_the_question_1():
     start = datetime.datetime.now()
@@ -76,11 +77,11 @@ def answer_the_question_3():
     print(f"Текст: {response}")
     
     
-def answer_the_question(prompt: str, LM_FOLDER: str) -> str:
+def answer_the_question(prompt: str) -> str:
     # model_name = "SmallDoge/Doge-320M-Instruct"
     # prompt += " in 2-3 sentences"
     model_name = "SmallDoge"
-    model_path = os.path.join(LM_FOLDER, model_name)
+    model_path = os.path.join(settings.lm_folder, model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True)
     generation_config = GenerationConfig(

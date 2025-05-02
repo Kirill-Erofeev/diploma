@@ -10,3 +10,12 @@ services:
       - .:/app
     env_file:
       - .env
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - SSL_KEY_PATH=${SSL_KEY_PATH}
+      - SSL_CERT_PATH=${SSL_CERT_PATH}
+      - LM_FOLDER=${LM_FOLDER}
+      - TEMPLATES_FOLDER=${TEMPLATES_FOLDER}
+      - SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL}

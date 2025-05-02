@@ -1,19 +1,17 @@
+import os
 import torch
 import whisper
 import datetime
 import warnings
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
-from datasets import load_dataset
 from faster_whisper import WhisperModel
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from dotenv import load_dotenv
-import os
 
+from app.core.config import settings
 
-def audio_to_text(file_path: str, LM_FOLDER: str) -> str:
+def audio_to_text(file_path: str) -> str:
     # model_name = "deepdml/faster-whisper-large-v3-turbo-ct2"
     model_name = "Whisper"
-    model_path = os.path.join(LM_FOLDER, model_name)
+    model_path = os.path.join(settings.lm_folder, model_name)
     model = WhisperModel(model_path, compute_type="int8", device="cpu")
     segments, info = model.transcribe(file_path)
     transcribed_text = ""

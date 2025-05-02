@@ -1,12 +1,6 @@
 from sqlalchemy import  Column, Integer, String, DateTime
-from app.database.db import Base
 
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True)
-    password = Column(String)
+from app.db.database import Base
 
 class History(Base):
     __tablename__ = "history"
