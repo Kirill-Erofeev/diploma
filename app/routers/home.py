@@ -15,7 +15,7 @@ from app.core.config import settings
 from app.dependencies import get_db, get_current_user
 from app.models.history_model import History
 from app.models.user_model import User
-from app.utils import speech_to_text, text_generation, text_to_speech, translation
+from app.utils import automatic_speech_recognition, speech_synthesis, text_generation, text_translation
 
 router = APIRouter()
 
@@ -31,22 +31,40 @@ async def post_audio_data(
         audio: UploadFile = File(...),
         db: Session = Depends(get_db)
 ) -> JSONResponse:
-    audio_file_path = "./app/static/audio.wav"
-    with open(audio_file_path, "wb") as buffer:
+    voices = [
+        # "Anna",
+        "Artemiy",
+        # "Elena",
+        "Evgeniy-Rus",
+        "Mikhail",
+        "Pavel",
+        "Seva",
+        "Timofey",
+        "Vitaliy",
+        "Vitaliy-ng",
+        "Yuriy",
+    ]
+    # audio_file_path = "./app/static/audio.wav"
+    with open(settings.audio_file_path, "wb") as buffer:
         shutil.copyfileobj(audio.file, buffer)
-    ru_prompt = speech_to_text.audio_to_text(
-        file_path=audio_file_path
+    ru_prompt = automatic_speech_recognition.audio_to_text(
+        audio_file_path=settings.audio_file_path
     )
-    en_prompt = translation.translate_text(
+    en_prompt = text_translation.translate_text(
         target_language="en",
         text=ru_prompt
     )
     generated_en_text = text_generation.answer_the_question(
         prompt=en_prompt
     )
-    generated_ru_text = translation.translate_text(
+    generated_ru_text = text_translation.translate_text(
         target_language="ru",
         text=generated_en_text
+    )
+    speech_synthesis.text_to_speech_6(
+        text=generated_ru_text,
+        voice="Vitaliy-ng",
+        audio_file_path=settings.audio_file_path
     )
     current_datetime = datetime.now().replace(microsecond=0)
     new_record = History(

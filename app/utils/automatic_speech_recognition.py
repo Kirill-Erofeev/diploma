@@ -1,27 +1,28 @@
+import datetime
 import os
 import torch
-import whisper
-import datetime
 import warnings
-from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
+import whisper
+
 from faster_whisper import WhisperModel
+from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
 from app.core.config import settings
 
-def audio_to_text(file_path: str) -> str:
+def audio_to_text(audio_file_path: str) -> str:
     # model_name = "deepdml/faster-whisper-large-v3-turbo-ct2"
     model_name = "Whisper"
     model_path = os.path.join(settings.lm_folder, model_name)
     model = WhisperModel(model_path, compute_type="int8", device="cpu")
-    segments, info = model.transcribe(file_path)
+    segments, info = model.transcribe(audio_file_path)
     transcribed_text = ""
     for segment in segments:
         transcribed_text += segment.text + " "
     return transcribed_text
 
-def audio_to_text_3(file_path: str = "audio.wav") -> str:
+def audio_to_text_3(audio_file_path: str = "audio.wav") -> str:
     model = whisper.load_model("medium")
-    audio = whisper.load_audio(file_path)
+    audio = whisper.load_audio(audio_file_path)
     audio = whisper.pad_or_trim(audio)
     mel = whisper.log_mel_spectrogram(audio).to(model.device)
     options = whisper.DecodingOptions(fp16=False)
@@ -29,8 +30,7 @@ def audio_to_text_3(file_path: str = "audio.wav") -> str:
     transcribed_text = result.text
     return transcribed_text
 
-
-def audio_to_text_2(file_path: str, model_id: str) -> None:
+def audio_to_text_2(audio_file_path: str, model_id: str) -> None:
     start = datetime.datetime.now()
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
@@ -49,7 +49,7 @@ def audio_to_text_2(file_path: str, model_id: str) -> None:
     )
     # dataset = load_dataset("distil-whisper/librispeech_long", "clean", split="validation")
     # sample = dataset[0]["audio"]
-    transcribed_text = pipe(file_path)["text"]
+    transcribed_text = pipe(audio_file_path)["text"]
     finish = datetime.datetime.now()
     print(f"Модель: {model_id}")
     print(f"Текст: {transcribed_text}")
@@ -72,7 +72,6 @@ if __name__ == "__main__":
     #     audio_to_text_2(file_path, model_id)
         
     audio_to_text_3(file_path)
-
 
 
 

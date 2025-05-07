@@ -23,12 +23,3 @@ def translate_text(
     translated = model.generate(**tokens)
     translated_text = tokenizer.decode(translated[0], skip_special_tokens=True)
     return translated_text
-
-# def translate_from_en_to_ru(prompt: str) -> str:
-#     model_name = "Helsinki-NLP/opus-mt-en-ru"
-#     tokenizer = MarianTokenizer.from_pretrained(model_name)
-#     model = MarianMTModel.from_pretrained(model_name)
-#     tokens = tokenizer(prompt, return_tensors="pt", padding=True)
-#     translated = model.generate(**tokens)
-#     translated_text = tokenizer.decode(translated[0], skip_special_tokens=True)
-#     return translated_text

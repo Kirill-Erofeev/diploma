@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int
     ssl_key_path: str
     ssl_cert_path: str
+    audio_file_path: str
     lm_folder: str
     templates_folder: str
     sqlalchemy_database_url: str
