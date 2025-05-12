@@ -1,9 +1,5 @@
+from fastapi import status, Depends, HTTPException
 from sqlalchemy.orm import Session
-from fastapi import (
-    status,
-    Depends,
-    HTTPException,
-)
 
 from app.db.database import SessionLocal
 from app.models.user_model import User

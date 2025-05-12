@@ -1,12 +1,8 @@
 import os
-from sqlalchemy.orm import Session
-from fastapi import (
-    status,
-    APIRouter,
-    Depends,
-    HTTPException,
-)
+
+from fastapi import status, APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.dependencies import get_db, get_current_user
