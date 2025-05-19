@@ -194,7 +194,7 @@
       async function getAllHistory() {
         try {
           const authorization = getAuthorization();
-          const response = await fetch("/get-history", {
+          const response = await fetch("/api/history", {
             method: "GET",
             headers: {
               Accept: "application/json",
@@ -222,7 +222,7 @@
           document.querySelector("tbody").innerHTML = "";
           const information =
             document.getElementById("information-input").value;
-          const response = await fetch(`/get-history/${information}`, {
+          const response = await fetch(`/api/history/${information}`, {
             method: "GET",
             headers: {
               Accept: "application/json",

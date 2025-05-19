@@ -1,10 +1,12 @@
-import re
+import datetime
 import os
+import razdel
+import re
 import torch
 import transformers
-import datetime
-from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig, TextStreamer
+
 from auto_gptq import AutoGPTQForCausalLM
+from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig, TextStreamer
 
 from app.core.config import settings
 
@@ -77,7 +79,7 @@ def answer_the_question_3():
     print(f"Текст: {response}")
     
     
-def answer_the_question(prompt: str) -> str:
+def answer_the_question(prompt: str, max_sentences: int) -> str:
     # model_name = "SmallDoge/Doge-320M-Instruct"
     # prompt += " in 2-3 sentences"
     model_name = "SmallDoge"
@@ -113,10 +115,13 @@ def answer_the_question(prompt: str) -> str:
     full_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     match = re.search(r"assistant\s*(.*?)$", full_text, re.DOTALL | re.IGNORECASE)
     if match:
-        answer_only = match.group(1).strip()
+        text = match.group(1).strip()
     else:
-        answer_only = full_text.strip()
-    return answer_only
+        text = full_text.strip()
+    sentences = list(razdel.sentenize(text))
+    if max_sentences < len(sentences):
+        text = " ".join([s.text for s in sentences[:3]])
+    return text
     
     
 def answer_the_question_5():

@@ -8,6 +8,8 @@ from fastapi import (
     Depends,
     File,
     UploadFile,
+    Form,
+    Body
 )
 from fastapi.responses import HTMLResponse, JSONResponse
 
@@ -15,7 +17,12 @@ from app.core.config import settings
 from app.dependencies import get_db, get_current_user
 from app.models.history_model import History
 from app.models.user_model import User
-from app.utils import automatic_speech_recognition, speech_synthesis, text_generation, text_translation
+from app.utils import (
+    automatic_speech_recognition,
+    speech_synthesis,
+    text_generation,
+    text_translation,
+)
 
 router = APIRouter()
 
@@ -25,10 +32,11 @@ async def get_home_page() -> HTMLResponse:
     with open(file_path, encoding="utf-8") as f:
         return HTMLResponse(f.read())
 
-@router.post("/record-audio")
+@router.post("/api/audio")
 async def post_audio_data(
         current_user: User = Depends(get_current_user),
-        audio: UploadFile = File(...),
+        audio: UploadFile = Body(...),
+        max_sentences: int = Form(...),
         db: Session = Depends(get_db)
 ) -> JSONResponse:
     voices = [
@@ -55,17 +63,18 @@ async def post_audio_data(
         text=ru_prompt
     )
     generated_en_text = text_generation.answer_the_question(
-        prompt=en_prompt
+        prompt=en_prompt,
+        max_sentences=max_sentences
     )
     generated_ru_text = text_translation.translate_text(
         target_language="ru",
         text=generated_en_text
     )
-    speech_synthesis.text_to_speech_6(
-        text=generated_ru_text,
-        voice="Vitaliy-ng",
-        audio_file_path=settings.audio_file_path
-    )
+    # speech_synthesis.text_to_speech_6(
+    #     text=generated_ru_text,
+    #     voice="Vitaliy-ng",
+    #     audio_file_path=settings.audio_file_path
+    # )
     current_datetime = datetime.now().replace(microsecond=0)
     new_record = History(
         date_time=current_datetime,

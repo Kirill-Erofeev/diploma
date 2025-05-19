@@ -26,11 +26,12 @@
       }
       h1 {
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        margin-bottom: 0.3em;
       }
       .container {
         color: white;
         font-size: 1rem;
-        height: 26em;
+        height: 31em;
         width: 23em;
         border-radius: 3em;
         padding: 1em;
@@ -51,7 +52,7 @@
         font-size: 1.5rem;
         height: 3.5em;
         width: 3.5em;
-        margin: 1em;
+        margin: 0em 1em 1em 1em;
         box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.5);
         transition: 0.3s;
         border-radius: 50%;
@@ -126,11 +127,139 @@
         font-size: 1rem;
         /* transition: opacity 0.5s ease-in-out; */
       }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: sans-serif;
+        padding: 60px 20px;
+      }
+
+      @media (min-width: 600px) {
+        body {
+          padding: 60px;
+        }
+      }
+
+      .range-slider {
+        width: 100%;
+        margin: 0.5em 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .range-slider__range {
+        -webkit-appearance: none;
+        width: calc(100% - 73px); /* 60px label + 13px offset */
+        height: 10px;
+        border-radius: 5px;
+        background: #d7dcdf;
+        background: linear-gradient(to right, green 0%, yellow 50%, red 100%);
+        outline: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .range-slider__range::-webkit-slider-thumb {
+        appearance: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #2c3e50;
+        background: rgb(255, 255, 255);
+        cursor: pointer;
+        transition: background 0.15s ease-in-out;
+      }
+
+      .range-slider__range:hover::-webkit-slider-thumb,
+      .range-slider__range:active::-webkit-slider-thumb {
+        background: #f0f;
+      }
+
+      .range-slider__range::-moz-range-thumb {
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: 50%;
+        background: #2c3e50;
+        cursor: pointer;
+        transition: background 0.15s ease-in-out;
+      }
+
+      .range-slider__range:hover::-moz-range-thumb,
+      .range-slider__range:active::-moz-range-thumb {
+        background: #f0f;
+      }
+
+      .range-slider__value {
+        /* display: inline-block;
+        position: relative;
+        width: 60px;
+        color: #fff;
+        line-height: 20px;
+        text-align: center;
+        border-radius: 3px;
+        background: #2c3e50;
+        padding: 5px 10px;
+        margin-left: 8px; */
+
+        margin-top: 10px;
+        background: #2c3e50;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 16px;
+        text-align: center;
+      }
+
+      .range-slider__value::after {
+        position: absolute;
+        top: 8px;
+        left: -7px;
+        width: 0;
+        height: 0;
+        border-top: 7px solid transparent;
+        border-right: 7px solid #2c3e50;
+        border-bottom: 7px solid transparent;
+        content: "";
+      }
+
+      ::-moz-range-track {
+        background: #d7dcdf;
+        background: linear-gradient(to right, green 0%, yellow 50%, red 100%);
+        border: 0;
+      }
+
+      input::-moz-focus-inner,
+      input::-moz-focus-outer {
+        border: 0;
+      }
+
+      main {
+        max-width: 80em;
+        margin: 2rem auto;
+        padding: 2rem;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Меню</h1>
+      <!-- <h1>Меню</h1> -->
+      <h1>Максимальное число предложений</h1>
+      <div class="range-slider">
+        <input
+          class="range-slider__range"
+          type="range"
+          value="3"
+          min="1"
+          max="10"
+        />
+        <span class="range-slider__value">0</span>
+      </div>
       <button id="recorder-button" class="recorder">🎤</button>
       <audio id="audio-playback" controls></audio>
       <button id="send-button" class="button" onclick="sendAudio()" disabled>
@@ -171,6 +300,26 @@
 
       const recorderButton = document.getElementById("recorder-button");
       const sendButton = document.getElementById("send-button");
+
+      slider = document.querySelector(".range-slider")
+      const input = slider.querySelector(".range-slider__range");
+      const output = slider.querySelector(".range-slider__value");
+      output.textContent = input.value;
+      input.addEventListener("input", () => {
+        output.textContent = input.value;
+      });
+      // document.querySelectorAll(".range-slider").forEach((slider) => {
+      //   const input = slider.querySelector(".range-slider__range");
+      //   const output = slider.querySelector(".range-slider__value");
+
+      //   // Инициализация значения
+      //   output.textContent = input.value;
+
+      //   // Обновление значения при движении ползунка
+      //   input.addEventListener("input", () => {
+      //     output.textContent = input.value;
+      //   });
+      // });
 
       recorderButton.onclick = async () => {
         if (!isRecording) {
@@ -214,11 +363,15 @@
           console.error("Нет записи для отправки");
           return;
         }
+        // const slider = document.querySelector("range-slider");
         const formData = new FormData();
+        const slider = document.querySelector(".range-slider__range");
+        // console.log(firstSliderValue, typeof(firstSliderValue));
         formData.append("audio", recordedAudioBlob, "audio.wav");
+        formData.append("max_sentences", slider.value);
         try {
           const authorization = getAuthorization();
-          const response = await fetch("/record-audio", {
+          const response = await fetch("/api/audio", {
             method: "POST",
             headers: { Authorization: authorization },
             body: formData,

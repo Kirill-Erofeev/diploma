@@ -3,7 +3,7 @@ from typing import Literal
 from transformers import MarianMTModel, MarianTokenizer
 from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
 
-# from app.core.config import settings
+from app.core.config import settings
 
 def translate_text(
         target_language: Literal["en", "ru"],
@@ -11,12 +11,15 @@ def translate_text(
 ) -> str:
     if target_language == "en":
         model_name = "Helsinki-NLP/opus-mt-ru-en"
-        model_name = "Helsinki-ru-en"
+        # model_name = "Helsinki-ru-en"
     elif target_language == "ru":
         model_name = "Helsinki-NLP/opus-mt-en-ru"
-        model_name = "Helsinki-en-ru"
+        # model_name = "Helsinki-en-ru"
     else:
         raise ValueError("Unsupported language")
+    # model_path = os.path.join(settings.lm_folder, model_name)
+    # tokenizer = MarianTokenizer.from_pretrained(model_path)
+    # model = MarianMTModel.from_pretrained(model_path)
     tokenizer = MarianTokenizer.from_pretrained(model_name)
     model = MarianMTModel.from_pretrained(model_name)
     tokens = tokenizer(text, return_tensors="pt", padding=True)

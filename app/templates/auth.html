@@ -276,7 +276,7 @@
 
             const clickedButton = event.submitter.id;
             let endpoint =
-              clickedButton === "register-button" ? "/register" : "/";
+              clickedButton === "register-button" ? "/api/auth/register" : "/api/auth/login";
 
             const formData = new FormData(this);
             console.log(endpoint);

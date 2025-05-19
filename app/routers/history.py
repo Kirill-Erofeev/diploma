@@ -17,7 +17,7 @@ async def get_history_page() -> HTMLResponse:
     with open(file_path, encoding="utf-8") as f:
         return HTMLResponse(f.read())
 
-@router.get("/get-history")
+@router.get("/api/history")
 async def get_history(
         current_user: User = Depends(get_current_user),
         db: Session = Depends(get_db)
@@ -32,7 +32,7 @@ async def get_history(
         )
     return history
 
-@router.get("/get-history/{information}")
+@router.get("/api/history/{information}")
 async def get_selected_history(
         information: str,
         current_user: User = Depends(get_current_user),

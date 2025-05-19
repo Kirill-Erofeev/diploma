@@ -8,7 +8,7 @@ from fastapi import (
     Form,
     HTTPException,
 )
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from app.core import security
 from app.core.config import settings
@@ -19,12 +19,16 @@ from app.schemas import token
 router = APIRouter()
 
 @router.get("/")
+def redirect_to_auth():
+    return RedirectResponse("/auth")
+
+@router.get("/auth")
 async def get_authorization_page() -> HTMLResponse:
-    file_path = os.path.join(settings.templates_folder, "authorization.html")
+    file_path = os.path.join(settings.templates_folder, "auth.html")
     with open(file_path, encoding="utf-8") as f:
         return HTMLResponse(f.read())
 
-@router.post("/", response_model=token.Token)
+@router.post("/api/auth/login", response_model=token.Token)
 async def post_authorization_data(
         username = Form(),
         password = Form(),
@@ -44,7 +48,7 @@ async def post_authorization_data(
         content="Вход выполнен"
     )
 
-@router.post("/register")
+@router.post("/api/auth/register")
 async def post_register_data(
         username = Form(),
         password = Form(),
