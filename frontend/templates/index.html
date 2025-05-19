@@ -290,9 +290,21 @@
       </button>
       <p id="message" class="message"></p>
     </div>
-    <!-- <div class="text"></div> -->
 
     <script>
+      async function loadConfig() {
+        const response = await fetch("/static/config.json");
+        const config = await response.json();
+        return config;
+      }
+
+      async function getAuthorization() {
+        const accessToken = sessionStorage.getItem("Access-Token");
+        const tokenType = sessionStorage.getItem("Token-Type");
+        const authorization = `${tokenType} ${accessToken}`;
+        return authorization;
+      }
+
       let mediaRecorder;
       let audioChunks = [];
       let recordedAudioBlob = null;
@@ -308,18 +320,6 @@
       input.addEventListener("input", () => {
         output.textContent = input.value;
       });
-      // document.querySelectorAll(".range-slider").forEach((slider) => {
-      //   const input = slider.querySelector(".range-slider__range");
-      //   const output = slider.querySelector(".range-slider__value");
-
-      //   // Инициализация значения
-      //   output.textContent = input.value;
-
-      //   // Обновление значения при движении ползунка
-      //   input.addEventListener("input", () => {
-      //     output.textContent = input.value;
-      //   });
-      // });
 
       recorderButton.onclick = async () => {
         if (!isRecording) {
@@ -351,27 +351,19 @@
         }
       };
 
-      function getAuthorization() {
-        const accessToken = sessionStorage.getItem("Access-Token");
-        const tokenType = sessionStorage.getItem("Token-Type");
-        const authorization = `${tokenType} ${accessToken}`;
-        return authorization;
-      }
-
       async function sendAudio() {
         if (!recordedAudioBlob) {
           console.error("Нет записи для отправки");
           return;
         }
-        // const slider = document.querySelector("range-slider");
         const formData = new FormData();
         const slider = document.querySelector(".range-slider__range");
-        // console.log(firstSliderValue, typeof(firstSliderValue));
         formData.append("audio", recordedAudioBlob, "audio.wav");
         formData.append("max_sentences", slider.value);
         try {
-          const authorization = getAuthorization();
-          const response = await fetch("/api/audio", {
+          const authorization = await getAuthorization();
+          const config = await loadConfig();
+          const response = await fetch(`${config.API_URL}/api/audio`, {
             method: "POST",
             headers: { Authorization: authorization },
             body: formData,
@@ -382,7 +374,6 @@
             message.textContent = data;
           } else {
             message.textContent = data["detail"];
-            // message.classList.add("message-visible");
           }
         } catch (error) {
           console.error(`Ошибка ${error}`);

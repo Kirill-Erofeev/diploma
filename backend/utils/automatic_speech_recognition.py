@@ -7,7 +7,7 @@ import whisper
 from faster_whisper import WhisperModel
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
-from app.core.config import settings
+from backend.core.config import settings
 
 def audio_to_text(audio_file_path: str) -> str:
     # model_name = "deepdml/faster-whisper-large-v3-turbo-ct2"

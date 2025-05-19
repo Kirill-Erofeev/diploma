@@ -10,12 +10,40 @@
         box-sizing: border-box;
       }
       body {
+        min-height: 100vh;
         font-family: Arial, sans-serif;
-        /* background: linear-gradient(135deg, #00c9a7, #0367a6); */
-        /* background: linear-gradient(135deg, #0f7d98, #10c125); */
-        background: linear-gradient(135deg, #16acd6, #36c320);
-        background-attachment: fixed;
-        text-align: center;
+        background-image: url("https://avatars.mds.yandex.net/i?id=9d0f00c613c7ff2b9ca65ac68617a334_l-5128642-images-thumbs&n=13");
+        background-size: cover;
+        background-position: center;
+        padding-top: 2rem;
+        display: block;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      thead {
+        position: sticky;
+        top: 0;
+        background-color: #007bff;
+        color: white;
+        z-index: 10;
+      }
+      th,
+      td {
+        padding: 0.5em;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      tbody tr:hover {
+        background-color: #f1f3f5;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
       .search {
         display: inline-flex;
@@ -58,35 +86,6 @@
         overflow-y: auto;
         border: 3px solid #ccc;
       }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        overflow: hidden;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-      thead {
-        position: sticky;
-        top: 0;
-        background: linear-gradient(135deg, #009688, #004d40);
-        color: white;
-        z-index: 10;
-      }
-      th,
-      td {
-        padding: 0.5em;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      }
-      th {
-        position: sticky;
-        background: linear-gradient(135deg, #009688, #004d40);
-        background: linear-gradient(180deg, #2c9cad, #2a10ef);
-        color: white;
-      }
-      tr:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transition: background 0.3s;
-      }
       .button {
         font-size: 1rem;
         margin: 0.5em;
@@ -102,8 +101,7 @@
         position: relative;
         background: linear-gradient(135deg, #eff30b, #e63d13);
       }
-      .button::before,
-      .recorder::before {
+      .button::before {
         content: "";
         position: absolute;
         inset: 3px;
@@ -111,8 +109,7 @@
         border-radius: 2em;
         border: 2px solid black;
       }
-      .button:hover,
-      .recorder:hover {
+      .button:hover {
         box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         transform: scale(1.05);
       }
@@ -143,58 +140,70 @@
     </style>
   </head>
   <body>
-    <div class="search">
-      <input
-        type="text"
-        id="information-input"
-        class="search-field"
-        placeholder="Введите поисковый запрос"
-      />
-      <img
-        src="https://taplink.st/a/5/f/7/9/981289.png?2"
-        alt=""
-        class="search-icon"
-        onclick="getSelectedHistory()"
-      />
-    </div>
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Дата и время</th>
-            <th>Запрос</th>
-            <th>Ответ</th>
-          </tr>
-        </thead>
-        <tbody id="scroll-table-body"></tbody>
-      </table>
-    </div>
-    <p id="message" class="message"></p>
-    <button id="get-main-menu" class="button" onclick="getMainMenu()">
-      Главное меню
-      <svg
-        class="arrow-icon"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 16 16"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"
+    <div class="container">
+      <div class="search">
+        <input
+          type="text"
+          id="information-input"
+          class="search-field"
+          placeholder="Введите поисковый запрос"
         />
-      </svg>
-    </button>
+        <img
+          src="https://taplink.st/a/5/f/7/9/981289.png?2"
+          alt=""
+          class="search-icon"
+          onclick="getSelectedHistory()"
+        />
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Дата и время</th>
+              <th>Запрос</th>
+              <th>Ответ</th>
+            </tr>
+          </thead>
+          <tbody id="scroll-table-body"></tbody>
+        </table>
+      </div>
+      <p id="message" class="message"></p>
+      <button id="get-main-menu" class="button" onclick="getMainMenu()">
+        Главное меню
+        <svg
+          class="arrow-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"
+          />
+        </svg>
+      </button>
+    </div>
+
     <script>
-      function getAuthorization() {
+      async function loadConfig() {
+        const response = await fetch("/static/config.json");
+        const config = await response.json();
+        return config;
+      }
+
+      async function getAuthorization() {
         const accessToken = sessionStorage.getItem("Access-Token");
         const tokenType = sessionStorage.getItem("Token-Type");
         const authorization = `${tokenType} ${accessToken}`;
         return authorization;
       }
+
       async function getAllHistory() {
         try {
-          const authorization = getAuthorization();
-          const response = await fetch("/api/history", {
+          const authorization = await getAuthorization();
+          console.log("auth", authorization);
+          const config = await loadConfig();
+          const response = await fetch(`${config.API_URL}/api/history`, {
             method: "GET",
             headers: {
               Accept: "application/json",
@@ -218,17 +227,22 @@
 
       async function getSelectedHistory() {
         try {
-          const authorization = getAuthorization();
+          const authorization = await getAuthorization();
           document.querySelector("tbody").innerHTML = "";
           const information =
             document.getElementById("information-input").value;
-          const response = await fetch(`/api/history/${information}`, {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-              Authorization: authorization,
-            },
-          });
+          const config = await loadConfig();
+          const response = await fetch(
+            `${config.API_URL}/api/history/${information}`,
+            {
+              // const apiResponse = await fetch(`/api/history/${information}`, {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+                Authorization: authorization,
+              },
+            }
+          );
           const data = await response.json();
           const message = document.getElementById("message");
           if (response.ok) {

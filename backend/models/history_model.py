@@ -1,6 +1,6 @@
 from sqlalchemy import  Column, Integer, String, DateTime
 
-from app.db.database import Base
+from backend.db.database import Base
 
 class History(Base):
     __tablename__ = "history"

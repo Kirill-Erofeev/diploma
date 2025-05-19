@@ -263,6 +263,12 @@
       </div>
     </div>
     <script>
+      async function loadConfig() {
+        const response = await fetch("/static/config.json");
+        const config = await response.json();
+        return config;
+      }
+
       function togglePassword() {
         const passwordInput = document.getElementById("password");
         passwordInput.type =
@@ -276,11 +282,13 @@
 
             const clickedButton = event.submitter.id;
             let endpoint =
-              clickedButton === "register-button" ? "/api/auth/register" : "/api/auth/login";
+              clickedButton === "register-button"
+                ? "/api/auth/register"
+                : "/api/auth/login";
 
             const formData = new FormData(this);
-            console.log(endpoint);
-            const response = await fetch(endpoint, {
+            const config = await loadConfig();
+            const response = await fetch(`${config.API_URL}${endpoint}`, {
               method: "POST",
               body: formData,
             });

@@ -8,7 +8,7 @@ import transformers
 from auto_gptq import AutoGPTQForCausalLM
 from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig, TextStreamer
 
-from app.core.config import settings
+from backend.core.config import settings
 
 def answer_the_question_1():
     start = datetime.datetime.now()

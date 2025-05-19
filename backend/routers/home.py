@@ -13,11 +13,11 @@ from fastapi import (
 )
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from app.core.config import settings
-from app.dependencies import get_db, get_current_user
-from app.models.history_model import History
-from app.models.user_model import User
-from app.utils import (
+from backend.core.config import settings
+from backend.dependencies import get_db, get_current_user
+from backend.models.history_model import History
+from backend.models.user_model import User
+from backend.utils import (
     automatic_speech_recognition,
     speech_synthesis,
     text_generation,
@@ -25,12 +25,6 @@ from app.utils import (
 )
 
 router = APIRouter()
-
-@router.get("/home")
-async def get_home_page() -> HTMLResponse:
-    file_path = os.path.join(settings.templates_folder, "index.html")
-    with open(file_path, encoding="utf-8") as f:
-        return HTMLResponse(f.read())
 
 @router.post("/api/audio")
 async def post_audio_data(

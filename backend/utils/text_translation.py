@@ -3,7 +3,7 @@ from typing import Literal
 from transformers import MarianMTModel, MarianTokenizer
 from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
 
-from app.core.config import settings
+from backend.core.config import settings
 
 def translate_text(
         target_language: Literal["en", "ru"],

@@ -1,5 +1,3 @@
-import os
-
 from sqlalchemy.orm import Session
 from fastapi import (
     status,
@@ -8,25 +6,14 @@ from fastapi import (
     Form,
     HTTPException,
 )
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse
 
-from app.core import security
-from app.core.config import settings
-from app.dependencies import get_db
-from app.models.user_model import User
-from app.schemas import token
+from backend.core import security
+from backend.dependencies import get_db
+from backend.models.user_model import User
+from backend.schemas import token
 
 router = APIRouter()
-
-@router.get("/")
-def redirect_to_auth():
-    return RedirectResponse("/auth")
-
-@router.get("/auth")
-async def get_authorization_page() -> HTMLResponse:
-    file_path = os.path.join(settings.templates_folder, "auth.html")
-    with open(file_path, encoding="utf-8") as f:
-        return HTMLResponse(f.read())
 
 @router.post("/api/auth/login", response_model=token.Token)
 async def post_authorization_data(
