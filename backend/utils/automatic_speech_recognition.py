@@ -12,7 +12,7 @@ from backend.core.config import settings
 def audio_to_text(audio_file_path: str) -> str:
     # model_name = "deepdml/faster-whisper-large-v3-turbo-ct2"
     model_name = "Whisper"
-    model_path = os.path.join(settings.lm_folder, model_name)
+    model_path = os.path.join(settings.lm_directory, model_name)
     model = WhisperModel(model_path, compute_type="int8", device="cpu")
     segments, info = model.transcribe(audio_file_path)
     transcribed_text = ""

@@ -201,9 +201,8 @@
       async function getAllHistory() {
         try {
           const authorization = await getAuthorization();
-          console.log("auth", authorization);
           const config = await loadConfig();
-          const response = await fetch(`${config.API_URL}/api/history`, {
+          const response = await fetch(`${config.SERVER_BASE_URL}/api/history`, {
             method: "GET",
             headers: {
               Accept: "application/json",
@@ -233,7 +232,7 @@
             document.getElementById("information-input").value;
           const config = await loadConfig();
           const response = await fetch(
-            `${config.API_URL}/api/history/${information}`,
+            `${config.SERVER_BASE_URL}/api/history/${information}`,
             {
               // const apiResponse = await fetch(`/api/history/${information}`, {
               method: "GET",

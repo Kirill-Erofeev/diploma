@@ -17,7 +17,7 @@ def translate_text(
         # model_name = "Helsinki-en-ru"
     else:
         raise ValueError("Unsupported language")
-    # model_path = os.path.join(settings.lm_folder, model_name)
+    # model_path = os.path.join(settings.lm_directory, model_name)
     # tokenizer = MarianTokenizer.from_pretrained(model_path)
     # model = MarianMTModel.from_pretrained(model_path)
     tokenizer = MarianTokenizer.from_pretrained(model_name)

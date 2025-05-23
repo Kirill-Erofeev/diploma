@@ -30,9 +30,9 @@ async def post_authorization_data(
         )
     access_token = security.create_access_token(data={"sub": user.username})
     return JSONResponse(
+        "Вход выполнен",
         status_code=status.HTTP_200_OK,
-        headers={"Access-Token": access_token, "Token-Type": "Bearer"},
-        content="Вход выполнен"
+        headers={"Access-Token": access_token, "Token-Type": "Bearer"}
     )
 
 @router.post("/api/auth/register")
@@ -53,6 +53,6 @@ async def post_register_data(
     db.commit()
     db.refresh(new_user)
     return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content="Пользователь успешно зарегистрирован"
+        "Пользователь успешно зарегистрирован",
+        status_code=status.HTTP_201_CREATED
     )

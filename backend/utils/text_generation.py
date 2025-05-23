@@ -83,7 +83,7 @@ def answer_the_question(prompt: str, max_sentences: int) -> str:
     # model_name = "SmallDoge/Doge-320M-Instruct"
     # prompt += " in 2-3 sentences"
     model_name = "SmallDoge"
-    model_path = os.path.join(settings.lm_folder, model_name)
+    model_path = os.path.join(settings.lm_directory, model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True)
     generation_config = GenerationConfig(

@@ -31,7 +31,7 @@
       .container {
         color: white;
         font-size: 1rem;
-        height: 31em;
+        height: 32em;
         width: 23em;
         border-radius: 3em;
         padding: 1em;
@@ -363,7 +363,7 @@
         try {
           const authorization = await getAuthorization();
           const config = await loadConfig();
-          const response = await fetch(`${config.API_URL}/api/audio`, {
+          const response = await fetch(`${config.SERVER_BASE_URL}/api/audio`, {
             method: "POST",
             headers: { Authorization: authorization },
             body: formData,

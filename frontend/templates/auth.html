@@ -288,7 +288,7 @@
 
             const formData = new FormData(this);
             const config = await loadConfig();
-            const response = await fetch(`${config.API_URL}${endpoint}`, {
+            const response = await fetch(`${config.SERVER_BASE_URL}${endpoint}`, {
               method: "POST",
               body: formData,
             });
