@@ -370,7 +370,7 @@
           });
           const data = await response.json();
           const message = document.getElementById("message");
-          if (response.ok) {
+          if (response.ok || response.status === 502) {
             message.textContent = data;
           } else {
             message.textContent = data["detail"];

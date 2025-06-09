@@ -72,6 +72,3 @@ if __name__ == "__main__":
     #     audio_to_text_2(file_path, model_id)
         
     audio_to_text_3(file_path)
-
-
-
