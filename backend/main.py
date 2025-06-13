@@ -24,6 +24,16 @@ origins = [
     "http://localhost:8000",
     "https://127.0.0.1:8000",
     "https://localhost:8000",
+    "http://10.4.35.51:8000",
+    "https://10.4.35.51:8000",
+    "http://10.4.35.13:8000",
+    "https://10.4.35.13:8000",
+    "http://192.168.1.14:8000",
+    "https://192.168.1.14:8000",
+    "http://192.168.10.154:8000",
+    "https://192.168.10.154:8000",
+    "http://192.168.10.230:8000",
+    "https://192.168.10.230:8000",
 ]
 
 app.add_middleware(
@@ -35,5 +45,6 @@ app.add_middleware(
     expose_headers=["Access-Token", "Token-Type"],
 )
 
+# openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout unified_key.pem -out unified_cert.pem -config san.cnf -extensions v3_req
 # Запуск сервера осуществляется из командной строки при помощи команды ниже
-# uvicorn backend.main:app --host=127.0.0.1 --port=8001 --ssl-keyfile=./certs/localhost.key --ssl-certfile=./certs/localhost.crt --reload
+# uvicorn backend.main:app --host=0.0.0.0 --port=8001 --ssl-keyfile=./certs/unified_key.pem --ssl-certfile=./certs/unified_cert.pem --reload

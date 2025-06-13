@@ -24,5 +24,6 @@ app.mount(
     name="static"
 )
 
+# openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout unified_key.pem -out unified_cert.pem -config san.cnf -extensions v3_req
 # Запуск сервера осуществляется из командной строки при помощи команды ниже
-# uvicorn frontend.main:app --host=127.0.0.1 --port=8000 --ssl-keyfile=./certs/localhost.key --ssl-certfile=./certs/localhost.crt --reload
+# uvicorn frontend.main:app --host=127.0.0.1 --port=8000 --ssl-keyfile=./certs/unified_key.pem --ssl-certfile=./certs/unified_cert.pem --reload
