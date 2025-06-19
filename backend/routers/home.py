@@ -1,19 +1,17 @@
-import os
+import aiofiles
 import httpx
-import shutil
+import os
 
 from datetime import datetime
 from sqlalchemy.orm import Session
 from fastapi import (
-    status,
     APIRouter,
     Depends,
     UploadFile,
     Form,
-    Body,
     File
 )
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse
 
 from backend.core.config import settings
 from backend.dependencies import get_db, get_current_user
@@ -31,7 +29,6 @@ router = APIRouter()
 @router.post("/api/audio")
 async def post_audio_data(
         current_user: User = Depends(get_current_user),
-        # audio: UploadFile = Body(...),
         audio: UploadFile = File(...),
         max_sentences: int = Form(...),
         db: Session = Depends(get_db)
@@ -53,28 +50,29 @@ async def post_audio_data(
         settings.audio_file_directory,
         settings.audio_file_name
     )
-    with open(audio_file_path, "wb") as buffer:
-        shutil.copyfileobj(audio.file, buffer)
-    ru_prompt = automatic_speech_recognition.audio_to_text(
+    async with aiofiles.open(audio_file_path, mode="wb") as out_file:
+        while content := await audio.read(1024):
+            await out_file.write(content)
+    ru_prompt = await automatic_speech_recognition.audio_to_text(
         audio_file_path=audio_file_path
     )
-    en_prompt = text_translation.translate_text(
+    en_prompt = await text_translation.translate_text(
         target_language="en",
         text=ru_prompt
     )
-    generated_en_text = text_generation.answer_the_question(
+    generated_en_text = await text_generation.answer_the_question(
         prompt=en_prompt,
         max_sentences=max_sentences
     )
-    generated_ru_text = text_translation.translate_text(
+    generated_ru_text = await text_translation.translate_text(
         target_language="ru",
         text=generated_en_text
     )
-    # speech_synthesis.text_to_speech_6(
-    #     text=generated_ru_text,
-    #     voice="Vitaliy-ng",
-    #     audio_file_path=audio_file_path
-    # )
+    speech_synthesis.text_to_speech_6(
+        text=generated_ru_text,
+        voice="Vitaliy-ng",
+        audio_file_path=audio_file_path
+    )
     current_datetime = datetime.now().replace(microsecond=0)
     new_record = History(
         date_time=current_datetime,
@@ -85,9 +83,10 @@ async def post_audio_data(
     db.add(new_record)
     db.commit()
     db.refresh(new_record)
-    async with httpx.AsyncClient(verify=settings.ssl_cert_path) as server:
-        with open(audio_file_path, "rb") as f:
-            file_data = f.read()
+    # async with httpx.AsyncClient(verify=settings.ssl_cert_path) as server:
+    async with httpx.AsyncClient(verify=False) as server:
+        async with aiofiles.open(audio_file_path, mode="rb") as f:
+            file_data = await f.read()
         files = {"file": (settings.audio_file_name, file_data, "audio/wav")}
         response = await server.post(
             f"{settings.client_base_url}/audio",
@@ -99,5 +98,3 @@ async def post_audio_data(
         result,
         status_code=response.status_code
     )
-# openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes
-# openssl req -x509 -out localhost.crt -keyout localhost.key -newkey rsa:2048 -nodes -days 365 -sha256 -subj '/CN=localhost' -addext "subjectAltName=IP:127.0.0.1,DNS:localhost"

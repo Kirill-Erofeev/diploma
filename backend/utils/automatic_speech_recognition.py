@@ -1,20 +1,16 @@
 import datetime
-import os
 import torch
 import warnings
 import whisper
 
-from faster_whisper import WhisperModel
+from starlette.concurrency import run_in_threadpool
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
-from backend.core.config import settings
+from backend.core import model_registry
 
-def audio_to_text(audio_file_path: str) -> str:
-    # model_name = "deepdml/faster-whisper-large-v3-turbo-ct2"
-    model_name = "Whisper"
-    model_path = os.path.join(settings.lm_directory, model_name)
-    model = WhisperModel(model_path, compute_type="int8", device="cpu")
-    segments, info = model.transcribe(audio_file_path)
+async def audio_to_text(audio_file_path: str) -> str:
+    model = model_registry.whisper_model
+    segments, info = await run_in_threadpool(model.transcribe, audio_file_path)
     transcribed_text = ""
     for segment in segments:
         transcribed_text += segment.text + " "

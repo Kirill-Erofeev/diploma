@@ -1,10 +1,6 @@
-import os
-
 from fastapi import status, APIRouter, Depends, HTTPException
-from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
-from backend.core.config import settings
 from backend.dependencies import get_db, get_current_user
 from backend.models.history_model import History
 from backend.models.user_model import User

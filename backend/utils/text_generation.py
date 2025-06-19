@@ -1,14 +1,14 @@
 import datetime
-import os
 import razdel
 import re
 import torch
 import transformers
 
 from auto_gptq import AutoGPTQForCausalLM
-from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig, TextStreamer
+from starlette.concurrency import run_in_threadpool
+from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 
-from backend.core.config import settings
+from backend.core import model_registry
 
 def answer_the_question_1():
     start = datetime.datetime.now()
@@ -19,7 +19,7 @@ def answer_the_question_1():
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     model = AutoGPTQForCausalLM.from_quantized(
         model_name, 
-        # device="cuda:0", 
+        # device="cuda:0",
         use_triton=False, 
         quantize_config=None
     )
@@ -79,13 +79,9 @@ def answer_the_question_3():
     print(f"Текст: {response}")
     
     
-def answer_the_question(prompt: str, max_sentences: int) -> str:
-    # model_name = "SmallDoge/Doge-320M-Instruct"
-    # prompt += " in 2-3 sentences"
-    model_name = "SmallDoge"
-    model_path = os.path.join(settings.lm_directory, model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
-    model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True)
+async def answer_the_question(prompt: str, max_sentences: int) -> str:
+    tokenizer = model_registry.small_doge_tokenizer
+    model = model_registry.small_doge_model
     generation_config = GenerationConfig(
         max_new_tokens=300,
         use_cache=True,
@@ -93,10 +89,6 @@ def answer_the_question(prompt: str, max_sentences: int) -> str:
         temperature=0.8,
         top_p=0.9,
         repetition_penalty=1.0
-    )
-    steamer = TextStreamer(
-        tokenizer=tokenizer, 
-        skip_prompt=True
     )
     conversation = [
         {"role": "user", "content": prompt}
@@ -106,11 +98,11 @@ def answer_the_question(prompt: str, max_sentences: int) -> str:
         tokenize=True,
         return_tensors="pt",
     )
-    outputs = model.generate(
+    outputs = await run_in_threadpool(
+        model.generate,
         inputs, 
         tokenizer=tokenizer,
-        generation_config=generation_config, 
-        streamer=steamer
+        generation_config=generation_config
     )
     full_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     match = re.search(r"assistant\s*(.*?)$", full_text, re.DOTALL | re.IGNORECASE)
@@ -118,15 +110,15 @@ def answer_the_question(prompt: str, max_sentences: int) -> str:
         text = match.group(1).strip()
     else:
         text = full_text.strip()
-    sentences = list(razdel.sentenize(text))
+    sentences = [s.text for s in razdel.sentenize(text)]
     if max_sentences < len(sentences):
-        text = " ".join([s.text for s in sentences[:3]])
+        text = " ".join([s for s in sentences[:max_sentences]])
     return text
     
     
 def answer_the_question_5():
     start = datetime.datetime.now()
-    generator = transformers.pipeline('text-generation', model='gpt2')
+    generator = transformers.pipeline("text-generation", model="gpt2")
     transformers.set_seed(42)
     print(generator("What is Metallica?", max_length=30, num_return_sequences=5)[0]["generated_text"])
 
